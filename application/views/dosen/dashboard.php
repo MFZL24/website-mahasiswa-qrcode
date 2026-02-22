@@ -23,9 +23,14 @@
         </div>
         <h4 style="margin-bottom: 5px; color: var(--text-main);"><?= $k->nama_mk ?></h4>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Semester: <?= $k->semester ?></p>
-        <a href="<?= base_url('index.php/dosen_fitur/pertemuan/'.$k->id_kelas) ?>" class="btn btn-primary" style="width: 100%; justify-content: center;">
-            <i class="fa-solid fa-list-check"></i> Kelola Pertemuan
-        </a>
+        <div style="display: flex; gap: 8px;">
+            <a href="<?= base_url('index.php/dosen_fitur/pertemuan/'.$k->id_kelas) ?>" class="btn btn-primary" style="flex: 2; justify-content: center; border-radius: 12px;">
+                <i class="fa-solid fa-list-check"></i> Kelola Pertemuan
+            </a>
+            <a href="<?= base_url('index.php/dosen_fitur/mhs_kelas/'.$k->id_kelas) ?>" class="btn" style="flex: 1; background: #f1f5f9; color: #475569; border-radius: 12px; justify-content: center;" title="Lihat Peserta">
+                <i class="fa-solid fa-users"></i>
+            </a>
+        </div>
     </div>
     <?php endforeach; ?>
     

@@ -15,7 +15,8 @@
                 <th>Kelas</th>
                 <th>Semester</th>
                 <th>Jadwal (Hari & Jam)</th>
-                <th width="150">Status</th>
+                <th width="120">Status</th>
+                <th width="100">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,11 @@
                     </td>
                     <td>
                         <span class="badge badge-success">AKTIF</span>
+                    </td>
+                    <td>
+                        <a href="<?= base_url('index.php/dosen_fitur/mhs_kelas/'.$r->id_kelas) ?>" class="btn btn-sm" style="background: #f1f5f9; color: #3b82f6; border: 1px solid #dbeafe; padding: 10px 15px; border-radius: 10px;" title="Lihat Mahasiswa">
+                            <i class="fa-solid fa-users"></i> Peserta
+                        </a>
                     </td>
                 </tr>
                 <?php } ?>

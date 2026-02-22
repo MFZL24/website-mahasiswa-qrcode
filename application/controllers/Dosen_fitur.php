@@ -95,14 +95,107 @@ class Dosen_fitur extends CI_Controller {
         $id_pertemuan = $this->uri->segment(3);
         
         // Ambil data pertemuan
-        $this->db->select('tb_pertemuan.*, tb_kelas.nama_kelas, tb_mata_kuliah.nama_mk');
+        $this->db->select('tb_pertemuan.*, tb_kelas.nama_kelas, tb_mata_kuliah.nama_mk, tb_kelas.id_kelas');
         $this->db->from('tb_pertemuan');
         $this->db->join('tb_kelas', 'tb_pertemuan.id_kelas = tb_kelas.id_kelas');
         $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
         $this->db->where('id_pertemuan', $id_pertemuan);
         $data['ptm'] = $this->db->get()->row();
         
-        $data['absensi'] = $this->Model_absensi->get_absensi_per_pertemuan($id_pertemuan);
+        // Ambil SEMUA mahasiswa yang ambil KRS kelas ini
+        $this->db->select('tb_mahasiswa.nim, tb_mahasiswa.nama, tb_absensi.id_absensi, tb_absensi.status, tb_absensi.waktu_absen');
+        $this->db->from('tb_mahasiswa');
+        $this->db->join('tb_krs', 'tb_mahasiswa.nim = tb_krs.nim');
+        $this->db->join('tb_absensi', "tb_mahasiswa.nim = tb_absensi.nim AND tb_absensi.id_pertemuan = '$id_pertemuan'", 'left');
+        $this->db->where('tb_krs.id_kelas', $data['ptm']->id_kelas);
+        $this->db->order_by('tb_mahasiswa.nama', 'ASC');
+        $data['absensi'] = $this->db->get();
+
         $this->template->load('template', 'dosen/rekap_absensi', $data);
+    }
+
+    public function update_status()
+    {
+        $id_pertemuan = $this->input->post('id_pertemuan');
+        $nim = $this->input->post('nim');
+        $status = $this->input->post('status');
+
+        // Cek apakah sudah ada record absensi
+        $cek = $this->db->get_where('tb_absensi', ['id_pertemuan' => $id_pertemuan, 'nim' => $nim])->row();
+
+        if ($cek) {
+            $this->db->where('id_absensi', $cek->id_absensi);
+            $this->db->update('tb_absensi', ['status' => $status, 'waktu_absen' => date('Y-m-d H:i:s')]);
+        } else {
+            $this->db->insert('tb_absensi', [
+                'id_pertemuan' => $id_pertemuan,
+                'nim' => $nim,
+                'status' => $status,
+                'waktu_absen' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $this->session->set_flashdata('success', "Status kehadiran $nim berhasil diubah menjadi $status.");
+        redirect('dosen_fitur/rekap_absensi/'.$id_pertemuan);
+    }
+
+    public function mhs_kelas()
+    {
+        $id_kelas = $this->uri->segment(3);
+        
+        // Data Kelas
+        $this->db->select('tb_kelas.*, tb_mata_kuliah.nama_mk');
+        $this->db->from('tb_kelas');
+        $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
+        $this->db->where('id_kelas', $id_kelas);
+        $data['kelas'] = $this->db->get()->row();
+
+        // Daftar Mahasiswa di Kelas tsb
+        $this->db->select('tb_mahasiswa.*');
+        $this->db->from('tb_mahasiswa');
+        $this->db->join('tb_krs', 'tb_mahasiswa.nim = tb_krs.nim');
+        $this->db->where('tb_krs.id_kelas', $id_kelas);
+        $data['mahasiswa'] = $this->db->get();
+
+        $this->template->load('template', 'dosen/mhs_kelas', $data);
+    }
+
+    public function tambah_pertemuan()
+    {
+        $id_kelas = $this->uri->segment(3);
+        $this->db->select('tb_kelas.*, tb_mata_kuliah.nama_mk');
+        $this->db->from('tb_kelas');
+        $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
+        $this->db->where('id_kelas', $id_kelas);
+        $data['kelas'] = $this->db->get()->row();
+        
+        // Cari pertemuan terakhir untuk auto-increment pertemuan_ke
+        $last_ptm = $this->db->where('id_kelas', $id_kelas)->order_by('pertemuan_ke', 'DESC')->get('tb_pertemuan', 1)->row();
+        $data['next_ptm'] = $last_ptm ? $last_ptm->pertemuan_ke + 1 : 1;
+
+        $this->template->load('template', 'dosen/form_pertemuan', $data);
+    }
+
+    public function simpan_pertemuan()
+    {
+        $id_kelas = $this->input->post('id_kelas');
+        $data = [
+            'id_kelas' => $id_kelas,
+            'pertemuan_ke' => $this->input->post('pertemuan_ke'),
+            'tanggal' => $this->input->post('tanggal'),
+            'jam_mulai' => $this->input->post('jam_mulai')
+        ];
+        $this->Model_pertemuan->simpan($data);
+        $this->session->set_flashdata('success', 'Sesi perkuliahan baru berhasil dibuat!');
+        redirect('dosen_fitur/pertemuan/'.$id_kelas);
+    }
+
+    public function hapus_pertemuan()
+    {
+        $id_pertemuan = $this->uri->segment(3);
+        $ptm = $this->db->get_where('tb_pertemuan', ['id_pertemuan' => $id_pertemuan])->row();
+        $this->Model_pertemuan->hapus($id_pertemuan);
+        $this->session->set_flashdata('success', 'Sesi perkuliahan berhasil dihapus.');
+        redirect('dosen_fitur/pertemuan/'.$ptm->id_kelas);
     }
 }

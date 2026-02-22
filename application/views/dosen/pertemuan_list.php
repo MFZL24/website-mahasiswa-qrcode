@@ -1,5 +1,8 @@
 <div class="card-header">
-    <h3 class="card-title"><i class="fa-solid fa-list-ol"></i> Pilih Pertemuan Untuk Absensi</h3>
+    <h3 class="card-title"><i class="fa-solid fa-list-ol"></i> Daftar Pertemuan Kuliah</h3>
+    <a href="<?= base_url('index.php/dosen_fitur/tambah_pertemuan/'.$this->uri->segment(3)) ?>" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> BUAT SESI BARU
+    </a>
 </div>
 
 <div style="padding: 20px;">
@@ -13,6 +16,7 @@
                     <th>Jadwal Tanggal</th>
                     <th>Waktu Mulai</th>
                     <th width="200">Aksi Absensi</th>
+                    <th width="60" style="text-align: center;">Hapus</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,13 +35,18 @@
                             </a>
                         </div>
                     </td>
+                    <td style="text-align: center;">
+                        <a href="<?= base_url('index.php/dosen_fitur/hapus_pertemuan/'.$p->id_pertemuan) ?>" class="btn btn-sm" style="background: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6; padding: 6px 12px; border-radius: 8px;" onclick="return confirm('Hapus sesi pertemuan ini? Data absensi di dalamnya juga akan terhapus.')" title="Hapus Sesi">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </td>
                 </tr>
                 <?php } ?>
                 <?php if ($pertemuan->num_rows() == 0): ?>
                 <tr>
                     <td colspan="4" style="text-align: center; padding: 50px; color: var(--text-muted);">
                         <i class="fa-solid fa-calendar-day" style="font-size: 40px; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
-                        Belum ada jadwal pertemuan yang dibuat oleh Admin untuk kelas ini.
+                        Belum ada jadwal pertemuan untuk kelas ini. Klik "Buat Sesi Baru" untuk memulai.
                     </td>
                 </tr>
                 <?php endif; ?>

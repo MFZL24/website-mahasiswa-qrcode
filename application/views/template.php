@@ -10,15 +10,15 @@
     
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-light: #eef2ff;
+            --primary: #006874;
+            --primary-light: #f0f7f8;
             --secondary: #10b981;
             --accent: #f43f5e;
-            --bg: #f9fafb;
-            --sidebar-bg: #1e293b;
-            --sidebar-hover: #334155;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --bg: #f5fbfc;
+            --sidebar-bg: #00363d;
+            --sidebar-hover: #004f58;
+            --text-main: #002023;
+            --text-muted: #4a6367;
             --white: #ffffff;
             --sidebar-width: 280px;
         }
@@ -124,7 +124,7 @@
 
         .menu-link.active {
             background-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 104, 116, 0.3);
         }
 
         .sidebar-footer {
@@ -486,7 +486,6 @@
                 <li class="menu-label">Akademik</li>
                 <li class="menu-item"><a href="<?= base_url('index.php/kelas') ?>" class="menu-link" id="menu-kelas"><i class="fa-solid fa-chalkboard-user"></i> Data Kelas & Jadwal</a></li>
                 <li class="menu-item"><a href="<?= base_url('index.php/krs') ?>" class="menu-link" id="menu-krs"><i class="fa-solid fa-id-card"></i> Monitoring KRS</a></li>
-                <li class="menu-item"><a href="<?= base_url('index.php/pertemuan') ?>" class="menu-link" id="menu-pertemuan"><i class="fa-solid fa-calendar-check"></i> Sesi Perkuliahan</a></li>
                 <li class="menu-item"><a href="<?= base_url('index.php/absensi/laporan') ?>" class="menu-link" id="menu-laporan"><i class="fa-solid fa-file-invoice"></i> Laporan Kehadiran</a></li>
             <?php endif; ?>
 

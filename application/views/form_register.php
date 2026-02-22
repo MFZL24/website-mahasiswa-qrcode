@@ -1,236 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Attendance System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Pendaftaran Akun Baru | UNIGLOBAL</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f3f4f6;
-            --text-main: #111827;
-            --text-muted: #6b7280;
+            --primary: #006874;
+            --primary-dark: #004f58;
+            --bg: #f8fafc;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 40px 0;
+            background: radial-gradient(circle at top right, #f0f7f8, #ffffff);
         }
-        .register-container {
-            background: white;
+
+        .reg-container {
             width: 100%;
-            max-width: 550px;
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 600px;
+            background: white;
+            padding: 50px;
+            border-radius: 40px;
+            box-shadow: 0 40px 80px rgba(0, 104, 116, 0.1);
+            border: 1px solid rgba(0, 104, 116, 0.05);
         }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 26px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
-        .header p { color: var(--text-muted); font-size: 15px; margin-top: 5px; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1e293b;
+            font-weight: 800;
+        }
+
+        .header p {
+            color: #64748b;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 15px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 104, 116, 0.05);
+        }
+
+        .btn-reg {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 15px 25px rgba(0, 104, 116, 0.2);
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-reg:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 800;
+        }
         
         .role-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 30px;
-            background: #f1f5f9;
-            padding: 8px;
-            border-radius: 16px;
+            margin-bottom: 25px;
         }
+
         .role-option {
-            padding: 12px;
+            border: 2px solid #f1f5f9;
+            padding: 15px;
+            border-radius: 15px;
             text-align: center;
             cursor: pointer;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 14px;
             transition: all 0.3s;
+            position: relative;
+        }
+
+        .role-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .role-option i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .role-option span {
+            font-size: 14px;
+            font-weight: 700;
             color: #64748b;
         }
-        .role-option.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+        .role-option:has(input:checked) {
+            border-color: var(--primary);
+            background: #f0f7f8;
         }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i.prefix-icon {
-            position: absolute;
-            left: 16px;
-            color: var(--text-muted);
-            transition: all 0.3s;
-            font-size: 16px;
-            pointer-events: none;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 16px 14px 48px;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s;
-            background: #fff;
-        }
-        .form-control:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); 
-        }
-        
-        .form-control:focus + i.prefix-icon {
+        .role-option:has(input:checked) i, .role-option:has(input:checked) span {
             color: var(--primary);
         }
-
-        .password-toggle {
-            position: absolute;
-            right: 16px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.3s;
-        }
-
-        .btn-register {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-        }
-        .btn-register:hover {
-            transform: translateY(-2px);
-            background: var(--primary-hover);
-        }
-
-        .footer-text { text-align: center; margin-top: 30px; font-size: 14px; color: var(--text-muted); }
-        .footer-text a { color: var(--primary); text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
-    <div class="register-container">
+
+    <div class="reg-container">
         <div class="header">
+            <div class="logo"><i class="fa-solid fa-university"></i> UNIGLOBAL</div>
             <h1>Daftar Akun Baru</h1>
-            <p>Pilih peran Anda untuk memulai</p>
+            <p>Silakan lengkapi data diri Anda untuk mendaftar.</p>
         </div>
 
-        <div class="role-selector">
-            <div class="role-option active" id="opt-mhs" onclick="switchRole('mahasiswa')">
-                <i class="fa-solid fa-user-graduate"></i> Mahasiswa
+        <?php if($this->session->flashdata('error')): ?>
+            <div style="background: #fff1f2; color: #e11d48; padding: 15px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-bottom: 25px; border: 1px solid #ffe4e6;">
+                <i class="fa-solid fa-circle-exclamation"></i> <?= $this->session->flashdata('error') ?>
             </div>
-            <div class="role-option" id="opt-dosen" onclick="switchRole('dosen')">
-                <i class="fa-solid fa-user-tie"></i> Dosen
-            </div>
-        </div>
+        <?php endif; ?>
 
         <form action="<?= base_url('index.php/auth/proses_register') ?>" method="post">
-            <input type="hidden" name="role" id="role-input" value="mahasiswa">
             
-            <div class="form-group" id="group-id">
-                <label id="label-id">NIM (Nomor Induk Mahasiswa)</label>
+            <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 12px; text-transform: uppercase;">Pilih Peran Anda</label>
+            <div class="role-selector">
+                <label class="role-option">
+                    <input type="radio" name="role" value="mahasiswa" checked required id="role-mhs">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Mahasiswa</span>
+                </label>
+                <label class="role-option">
+                    <input type="radio" name="role" value="dosen" id="role-dosen">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Dosen</span>
+                </label>
+            </div>
+
+            <div class="input-group">
+                <label id="identity-label">Nomor Induk Mahasiswa (NIM)</label>
                 <div class="input-wrapper">
-                    <input type="text" name="identity" id="input-id" class="form-control" placeholder="Masukkan NIM Anda" required>
-                    <i class="fa-solid fa-id-card prefix-icon"></i>
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" name="identity" placeholder="Contoh: 2021001" required>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="input-group">
                 <label>Nama Lengkap</label>
                 <div class="input-wrapper">
-                    <input type="text" name="nama" class="form-control" placeholder="Masukkan nama sesuai KTP" required>
-                    <i class="fa-solid fa-user prefix-icon"></i>
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
                 </div>
             </div>
 
-            <div class="form-group" id="group-extra">
+            <div class="input-group">
                 <label>Username</label>
                 <div class="input-wrapper">
-                    <input type="text" name="username" class="form-control" placeholder="Buat username unik" required>
-                    <i class="fa-solid fa-at prefix-icon"></i>
+                    <i class="fa-solid fa-at"></i>
+                    <input type="text" name="username" placeholder="Buat username unik" required>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Password Akun</label>
+            <div class="input-group">
+                <label>Password</label>
                 <div class="input-wrapper">
-                    <input type="password" name="password" id="reg_pass" class="form-control" placeholder="Minimal 6 karakter" required minlength="6">
-                    <i class="fa-solid fa-lock prefix-icon"></i>
-                    <span class="password-toggle" onclick="togglePasswordReg('reg_pass')">
-                        <i id="toggle-reg_pass" class="fa-solid fa-eye"></i>
-                    </span>
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="********" required>
                 </div>
             </div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 30px;">
-                <button type="reset" class="btn-register" style="background: #e2e8f0; color: #475569; flex: 1; box-shadow: none; margin-top: 0;">
-                    Reset
-                </button>
-                <button type="submit" class="btn-register" style="flex: 2; margin-top: 0;">
-                    DAFTAR SEKARANG
-                </button>
-            </div>
+
+            <button type="submit" class="btn-reg">BUAT AKUN SEKARANG</button>
         </form>
 
-        <div class="footer-text">
-            Sudah punya akun? <a href="<?= base_url('index.php/auth/login') ?>">Masuk di sini</a>
+        <div class="footer-links">
+            Sudah punya akun? <a href="<?= base_url('index.php/auth/login') ?>">Login di sini</a>
+            <br><br>
+            <a href="<?= base_url() ?>" style="color: #94a3b8; font-weight: 600;">Kembali ke Beranda</a>
         </div>
     </div>
 
     <script>
-        function switchRole(role) {
-            document.getElementById('role-input').value = role;
-            const optMhs = document.getElementById('opt-mhs');
-            const optDosen = document.getElementById('opt-dosen');
-            const labelId = document.getElementById('label-id');
-            const inputId = document.getElementById('input-id');
-
-            if (role === 'mahasiswa') {
-                optMhs.classList.add('active');
-                optDosen.classList.remove('active');
-                labelId.innerText = 'NIM (Nomor Induk Mahasiswa)';
-                inputId.placeholder = 'Masukkan NIM Anda';
-            } else {
-                optDosen.classList.add('active');
-                optMhs.classList.remove('active');
-                labelId.innerText = 'NIDN (Nomor Induk Dosen)';
-                inputId.placeholder = 'Masukkan NIDN Anda';
-            }
-        }
-
-        function togglePasswordReg(id) {
-            const passwordField = document.getElementById(id);
-            const toggleIcon = document.getElementById('toggle-' + id);
-            
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                toggleIcon.classList.remove("fa-eye");
-                toggleIcon.classList.add("fa-eye-slash");
-            } else {
-                passwordField.type = "password";
-                toggleIcon.classList.remove("fa-eye-slash");
-                toggleIcon.classList.add("fa-eye");
-            }
-        }
+        document.getElementById('role-mhs').addEventListener('change', function() {
+            document.getElementById('identity-label').innerText = 'Nomor Induk Mahasiswa (NIM)';
+        });
+        document.getElementById('role-dosen').addEventListener('change', function() {
+            document.getElementById('identity-label').innerText = 'Nomor Induk Dosen Nasional (NIDN)';
+        });
     </script>
+
 </body>
 </html>

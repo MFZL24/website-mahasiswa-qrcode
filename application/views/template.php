@@ -21,6 +21,7 @@
             --text-muted: #4a6367;
             --white: #ffffff;
             --sidebar-width: 280px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -48,8 +49,8 @@
             top: 0;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s;
-            z-index: 1000;
+            transition: var(--transition);
+            z-index: 1001;
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
 
@@ -164,11 +165,19 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 30px;
             position: sticky;
             top: 0;
             z-index: 900;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: var(--text-main);
+            cursor: pointer;
+            z-index: 1100;
         }
 
         .nav-left h4 {
@@ -224,8 +233,57 @@
         }
 
         .content-body {
-            padding: 40px;
+            padding: 25px;
             flex: 1;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                left: calc(-1 * var(--sidebar-width));
+            }
+            .main-wrapper {
+                margin-left: 0;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .hamburger {
+                display: block;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.4);
+                backdrop-filter: blur(4px);
+                z-index: 1000;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .top-navbar {
+                padding: 0 20px;
+            }
+            .nav-left h4 {
+                display: none; /* Sembunyikan judul di moblie untuk space */
+            }
+            .content-body {
+                padding: 15px;
+            }
+            .user-info {
+                display: none; /* Sembunyikan nama di mobile */
+            }
+            .card {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            .form-container-card {
+                padding: 25px;
+            }
         }
 
         /* Common UI Components */
@@ -514,10 +572,16 @@
         </div>
     </div>
 
+    <!-- Overlay Mobile -->
+    <div class="sidebar-overlay" id="overlay"></div>
+
     <!-- Main Content -->
     <div class="main-wrapper">
         <nav class="top-navbar">
             <div class="nav-left">
+                <div class="hamburger" id="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
                 <h4>Sistem Informasi Absensi</h4>
             </div>
             <div class="nav-right">
@@ -539,6 +603,19 @@
     </div>
 
     <script>
+        // Sidebar Toggle Mobile
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        hamburger.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
         // Active Menu Logic Improved
         const currentPath = window.location.href;
         const menuLinks = document.querySelectorAll('.menu-link');

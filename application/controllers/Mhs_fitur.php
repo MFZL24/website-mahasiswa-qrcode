@@ -55,8 +55,13 @@ class Mhs_fitur extends CI_Controller {
             // Cek apakah sudah ambil
             $cek = $this->db->get_where('tb_krs', ['nim' => $mhs->nim, 'id_kelas' => $id_kelas])->num_rows();
             if ($cek == 0) {
-                // Ambil data semester dari kelas
-                $kelas = $this->db->get_where('tb_kelas', ['id_kelas' => $id_kelas])->row();
+                // Ambil data semester dari matakuliah (join via tb_kelas)
+                $this->db->select('tb_mata_kuliah.semester');
+                $this->db->from('tb_kelas');
+                $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
+                $this->db->where('tb_kelas.id_kelas', $id_kelas);
+                $kelas = $this->db->get()->row();
+
                 $data = [
                     'nim' => $mhs->nim,
                     'id_kelas' => $id_kelas,

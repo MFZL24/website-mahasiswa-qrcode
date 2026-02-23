@@ -26,10 +26,18 @@
                     <td><div style="font-weight: 700;"><?= date('d F Y', strtotime($p->tanggal)) ?></div></td>
                     <td><i class="fa-regular fa-clock"></i> <?= substr($p->jam_mulai, 0, 5) ?> WIB</td>
                     <td>
-                        <div style="display: flex; gap: 8px;">
-                            <a href="<?= base_url('index.php/dosen_fitur/generate_qr/'.$p->id_pertemuan) ?>" class="btn btn-primary btn-sm" style="padding: 10px 15px; border-radius: 10px; flex: 1; justify-content: center;">
-                                <i class="fa-solid fa-qrcode"></i> AKTIFKAN QR
-                            </a>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; gap: 5px;">
+                                <select id="durasi_<?= $p->id_pertemuan ?>" class="form-control form-control-sm" style="height: 40px; border-radius: 10px; flex: 1; font-weight: 700;">
+                                    <option value="15">15 Mnt</option>
+                                    <option value="30" selected>30 Mnt</option>
+                                    <option value="45">45 Mnt</option>
+                                    <option value="60">60 Mnt</option>
+                                </select>
+                                <button onclick="aktifkanQR('<?= $p->id_pertemuan ?>')" class="btn btn-primary btn-sm" style="padding: 10px 15px; border-radius: 10px; flex: 2; justify-content: center; font-weight: 700; border: none;">
+                                    <i class="fa-solid fa-qrcode"></i> AKTIFKAN
+                                </button>
+                            </div>
                             <a href="<?= base_url('index.php/dosen_fitur/rekap_absensi/'.$p->id_pertemuan) ?>" class="btn btn-sm" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px; flex: 1; justify-content: center; font-weight: 700;">
                                 <i class="fa-solid fa-users"></i> LIHAT ABSEN
                             </a>
@@ -60,3 +68,11 @@
         </a>
     </div>
 </div>
+
+<script>
+function aktifkanQR(idPtm) {
+    const durasi = document.getElementById('durasi_' + idPtm).value;
+    const url = "<?= base_url('index.php/dosen_fitur/generate_qr/') ?>" + idPtm + "/" + durasi;
+    window.location.href = url;
+}
+</script>

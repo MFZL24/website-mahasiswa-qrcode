@@ -61,10 +61,35 @@ class Krs extends CI_Controller {
         }
     }
 
+    public function approve()
+    {
+        $id = $this->uri->segment(3);
+        $nim = $this->uri->segment(4);
+        $this->db->where('id_krs', $id);
+        $this->db->update('tb_krs', ['is_approved' => 1]);
+        $this->session->set_flashdata('success', 'Mata kuliah berhasil disetujui.');
+        redirect('krs/detail/'.$nim);
+    }
+
+    public function batch_approve()
+    {
+        $nim = $this->uri->segment(3);
+        $this->db->where('nim', $nim);
+        $this->db->update('tb_krs', ['is_approved' => 1]);
+        $this->session->set_flashdata('success', 'Semua mata kuliah mahasiswa ini telah disetujui.');
+        redirect('krs/detail/'.$nim);
+    }
+
     public function hapus()
     {
         $id = $this->uri->segment(3);
+        $nim = $this->uri->segment(4);
         $this->Model_krs->hapus($id);
-        redirect('krs');
+        $this->session->set_flashdata('success', 'Data KRS berhasil dihapus.');
+        if ($nim) {
+            redirect('krs/detail/'.$nim);
+        } else {
+            redirect('krs');
+        }
     }
 }

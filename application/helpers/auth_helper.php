@@ -48,3 +48,14 @@ function only_mahasiswa()
         redirect('dashboard');
     }
 }
+
+/**
+ * Khusus Admin & Dosen
+ */
+function only_admin_dosen()
+{
+    $role = get_role();
+    if ($role !== 'admin' && $role !== 'dosen') {
+        redirect('dashboard');
+    }
+}

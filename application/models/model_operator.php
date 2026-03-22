@@ -36,7 +36,22 @@ class Model_operator extends CI_Model {
 
     function get_one_profile($id)
     {
-        return $this->db->get_where('tb_operator', ['id_operator' => $id])->row_array();
+        $user = $this->db->get_where('tb_operator', ['id_operator' => $id])->row();
+        if (!$user) return null;
+
+        $this->db->select('tb_operator.*');
+        if ($user->role == 'mahasiswa') {
+            $this->db->select('tb_mahasiswa.nim as identity');
+            $this->db->join('tb_mahasiswa', 'tb_mahasiswa.id_operator = tb_operator.id_operator', 'left');
+        } elseif ($user->role == 'dosen') {
+            $this->db->select('tb_dosen.nidn as identity');
+            $this->db->join('tb_dosen', 'tb_dosen.id_operator = tb_operator.id_operator', 'left');
+        } else {
+            $this->db->select('tb_operator.username as identity');
+        }
+        
+        $this->db->where('tb_operator.id_operator', $id);
+        return $this->db->get('tb_operator')->row_array();
     }
 
     function edit($data, $id)

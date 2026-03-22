@@ -9,7 +9,7 @@ class Pertemuan extends CI_Controller {
         if (!check_session_login()) {
             redirect('auth/login');
         }
-        only_admin();
+        only_admin_dosen();
         $this->load->model(['Model_pertemuan', 'Model_kelas', 'Model_absensi']);
     }
 

@@ -59,7 +59,7 @@ class Dosen_fitur extends CI_Controller {
         $duration = $this->uri->segment(4) ?: 30; // Default 30 menit
         
         // Load Library phpqrcode
-        include APPPATH . 'libraries/phpqrcode/qrlib.php';
+        include_once APPPATH . 'libraries/phpqrcode/qrlib.php';
         
         // Buat token unik
         $token = strtoupper(substr(md5(time().$id_pertemuan), 0, 8));
@@ -98,7 +98,47 @@ class Dosen_fitur extends CI_Controller {
         $this->db->order_by('tb_absensi.id_absensi', 'DESC');
         $data['recent_scans'] = $this->db->get();
 
-        $this->template->load('template', 'dosen/view_qr', $data);
+        redirect('dosen_fitur/rekap_absensi/'.$id_pertemuan);
+    }
+
+    public function view_qr($id_pertemuan)
+    {
+        // Ambil data pertemuan + kelas + matkul
+        $this->db->select('tb_pertemuan.*, tb_kelas.nama_kelas, tb_mata_kuliah.nama_mk');
+        $this->db->from('tb_pertemuan');
+        $this->db->join('tb_kelas', 'tb_pertemuan.id_kelas = tb_kelas.id_kelas');
+        $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
+        $this->db->where('id_pertemuan', $id_pertemuan);
+        $data['ptm'] = $this->db->get()->row();
+
+        // Ambil token QR dari database
+        $qr = $this->db->get_where('tb_qrcode', ['id_pertemuan' => $id_pertemuan])->row();
+        
+        if (!$qr || strtotime($qr->expired_at) < time()) {
+            $this->session->set_flashdata('error', 'Sesi QR sudah berakhir.');
+            redirect('dosen_fitur/rekap_absensi/'.$id_pertemuan);
+        }
+
+        $data['token'] = $qr->token;
+        $data['id_pertemuan'] = $id_pertemuan;
+
+        // Generate QR Image (Base64)
+        include_once APPPATH . 'libraries/phpqrcode/qrlib.php';
+        ob_start();
+        QRcode::png($qr->token, null, QR_ECLEVEL_L, 10, 2);
+        $data['qr_image'] = 'data:image/png;base64,' . base64_encode(ob_get_contents());
+        ob_end_clean();
+
+        // Fetch students who already scanned
+        $this->db->select('tb_mahasiswa.nama, tb_mahasiswa.nim, tb_absensi.status');
+        $this->db->from('tb_absensi');
+        $this->db->join('tb_mahasiswa', 'tb_absensi.nim = tb_mahasiswa.nim');
+        $this->db->where('tb_absensi.id_pertemuan', $id_pertemuan);
+        $this->db->order_by('tb_absensi.id_absensi', 'DESC');
+        $data['recent_scans'] = $this->db->get();
+
+        // Tidak pakai template karena fullscreen
+        $this->load->view('dosen/view_qr', $data);
     }
 
     public function rekap_absensi()
@@ -123,6 +163,7 @@ class Dosen_fitur extends CI_Controller {
         if ($qr) {
             $expired_at = strtotime($qr->expired_at);
             $is_expired = ($now >= $expired_at); // True kalau waktu sudah lewat
+            $data['qr_expired_ts'] = $expired_at; // Pass to view for countdown
         }
 
         $data['is_expired'] = $is_expired;
@@ -136,21 +177,25 @@ class Dosen_fitur extends CI_Controller {
             $this->db->where('tb_krs.id_kelas', $data['ptm']->id_kelas);
             $semua_mhs = $this->db->get()->result();
 
-            // Otomatis insert Alpa untuk mahasiswa yang belum punya record absensi
-            foreach ($semua_mhs as $m) {
-                $cek = $this->db->get_where('tb_absensi', [
-                    'id_pertemuan' => $id_pertemuan,
-                    'nim'          => $m->nim
-                ])->row();
+            // Ambil NIM yang sudah ada record-nya untuk pertemuan ini
+            $this->db->select('nim');
+            $this->db->where('id_pertemuan', $id_pertemuan);
+            $existing_absensi = array_column($this->db->get('tb_absensi')->result_array(), 'nim');
 
-                if (!$cek) {
-                    $this->db->insert('tb_absensi', [
+            $batch_alpa = [];
+            foreach ($semua_mhs as $m) {
+                if (!in_array($m->nim, $existing_absensi)) {
+                    $batch_alpa[] = [
                         'id_pertemuan' => $id_pertemuan,
                         'nim'          => $m->nim,
                         'status'       => 'Alpha',
                         'waktu_absen'  => null
-                    ]);
+                    ];
                 }
+            }
+
+            if (!empty($batch_alpa)) {
+                $this->db->insert_batch('tb_absensi', $batch_alpa);
             }
 
             // Sekarang ambil ulang data lengkap dengan JOIN
@@ -243,7 +288,8 @@ class Dosen_fitur extends CI_Controller {
             'id_kelas' => $id_kelas,
             'pertemuan_ke' => $this->input->post('pertemuan_ke'),
             'tanggal' => $this->input->post('tanggal'),
-            'jam_mulai' => $this->input->post('jam_mulai')
+            'jam_mulai' => $this->input->post('jam_mulai'),
+            'jam_selesai' => $this->input->post('jam_selesai')
         ];
         $this->Model_pertemuan->simpan($data);
         $this->session->set_flashdata('success', 'Sesi perkuliahan baru berhasil dibuat!');
@@ -270,7 +316,7 @@ class Dosen_fitur extends CI_Controller {
         $this->db->update('tb_qrcode', ['token' => $token]);
 
         // Load Library phpqrcode
-        include APPPATH . 'libraries/phpqrcode/qrlib.php';
+        include_once APPPATH . 'libraries/phpqrcode/qrlib.php';
         ob_start();
         QRcode::png($token, null, QR_ECLEVEL_L, 10, 2);
         $imageString = base64_encode(ob_get_contents());
@@ -287,12 +333,30 @@ class Dosen_fitur extends CI_Controller {
         ]);
     }
 
+    public function akhiri_sesi()
+    {
+        $id_pertemuan = $this->uri->segment(3);
+        
+        // Update expired_at menjadi WAKTU SEKARANG agar langsung berakhir
+        $this->db->where('id_pertemuan', $id_pertemuan);
+        $this->db->update('tb_qrcode', ['expired_at' => date('Y-m-d H:i:s')]);
+
+        $this->session->set_flashdata('success', 'Sesi QR-Scanner telah dihentikan secara manual.');
+        redirect('dosen_fitur/rekap_absensi/'.$id_pertemuan);
+    }
+
     public function hapus_pertemuan()
     {
         $id_pertemuan = $this->uri->segment(3);
         $ptm = $this->db->get_where('tb_pertemuan', ['id_pertemuan' => $id_pertemuan])->row();
-        $this->Model_pertemuan->hapus($id_pertemuan);
-        $this->session->set_flashdata('success', 'Sesi perkuliahan berhasil dihapus.');
-        redirect('dosen_fitur/pertemuan/'.$ptm->id_kelas);
+        
+        if ($ptm) {
+            $id_kelas = $ptm->id_kelas;
+            $this->Model_pertemuan->hapus($id_pertemuan);
+            $this->session->set_flashdata('success', 'Sesi perkuliahan berhasil dihapus.');
+            redirect('dosen_fitur/pertemuan/'.$id_kelas);
+        } else {
+            redirect('dosen_fitur/jadwal');
+        }
     }
 }

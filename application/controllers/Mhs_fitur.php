@@ -17,6 +17,11 @@ class Mhs_fitur extends CI_Controller {
     {
         $id_operator = $this->session->userdata('id_operator');
         $mhs = $this->Model_mahasiswa->get_by_operator($id_operator);
+        if (!$mhs) {
+            $this->session->set_flashdata('error', 'Data profil mahasiswa tidak ditemukan.');
+            redirect('auth/logout');
+            return;
+        }
         $data['mhs'] = $mhs;
         $data['record'] = $this->Model_krs->get_mhs_krs($mhs->nim);
         
@@ -27,9 +32,15 @@ class Mhs_fitur extends CI_Controller {
         }
         $data['total_sks'] = $total_sks;
         
-        // Simulasi IPK (bisa dikembangkan nanti dengan tabel nilai)
-        $data['ipk'] = 3.20; 
-        $data['max_sks'] = ($data['ipk'] >= 3.0) ? 24 : 20;
+        // Gunakan IPK real dari database
+        $data['ipk'] = $mhs->ipk_terakhir; 
+        
+        // Penentuan jatah SKS berdasarkan IPK
+        if ($mhs->semester_aktif == 1) {
+            $data['max_sks'] = 20; // Default maba
+        } else {
+            $data['max_sks'] = ($data['ipk'] >= 3.0) ? 24 : 20;
+        }
 
         $this->template->load('template', 'mahasiswa/krs_list', $data);
     }
@@ -38,9 +49,18 @@ class Mhs_fitur extends CI_Controller {
     {
         $id_operator = $this->session->userdata('id_operator');
         $mhs = $this->Model_mahasiswa->get_by_operator($id_operator);
+        if (!$mhs) redirect('auth/logout');
         
-        // Ambil jadwal berdasarkan KRS
-        $data['jadwal'] = $this->Model_krs->get_mhs_krs($mhs->nim);
+        // Ambil jadwal berdasarkan KRS yang sudah DISETUJUI saja
+        $this->db->select('tb_krs.*, tb_kelas.nama_kelas, tb_mata_kuliah.nama_mk, tb_mata_kuliah.kode_mk, tb_mata_kuliah.sks, tb_dosen.nama_dosen, tb_kelas.hari, tb_kelas.jam_mulai, tb_kelas.jam_selesai');
+        $this->db->from('tb_krs');
+        $this->db->join('tb_kelas', 'tb_krs.id_kelas = tb_kelas.id_kelas');
+        $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
+        $this->db->join('tb_dosen', 'tb_kelas.nidn = tb_dosen.nidn');
+        $this->db->where('tb_krs.nim', $mhs->nim);
+        $this->db->where('tb_krs.is_approved', 1);
+        $data['jadwal'] = $this->db->get();
+
         $this->template->load('template', 'mahasiswa/jadwal_kuliah', $data);
     }
 
@@ -48,6 +68,7 @@ class Mhs_fitur extends CI_Controller {
     {
         $id_operator = $this->session->userdata('id_operator');
         $mhs = $this->Model_mahasiswa->get_by_operator($id_operator);
+        if (!$mhs) redirect('auth/logout');
         
         if (isset($_POST['submit'])) {
             $id_kelas = $this->input->post('id_kelas');
@@ -75,8 +96,8 @@ class Mhs_fitur extends CI_Controller {
             redirect('mhs_fitur/krs');
         } else {
             $data['mhs'] = $mhs;
-            // Ambil semua kelas yang tersedia
-            $data['kelas_list'] = $this->Model_kelas->tampilkan_data();
+            // Ambil semua kelas yang tersedia sesuai semester aktif
+            $data['kelas_list'] = $this->Model_kelas->get_kelas_aktif();
             $this->template->load('template', 'mahasiswa/krs_ambil', $data);
         }
     }
@@ -95,6 +116,7 @@ class Mhs_fitur extends CI_Controller {
             $token = $this->input->post('token');
             $id_operator = $this->session->userdata('id_operator');
             $mhs = $this->Model_mahasiswa->get_by_operator($id_operator);
+            if (!$mhs) redirect('auth/logout');
             
             // Cek token di tb_qrcode
             $qr = $this->db->get_where('tb_qrcode', array('token' => $token))->row();
@@ -103,9 +125,9 @@ class Mhs_fitur extends CI_Controller {
                 // Cek apakah sudah expired
                 if (strtotime($qr->expired_at) > time()) {
                     
-                // Cek apakah mahasiswa terdaftar di KRS untuk kelas ini
+                // Cek apakah mahasiswa terdaftar di KRS untuk kelas ini DAN SUDAH DISETUJUI
                 $ptm = $this->db->get_where('tb_pertemuan', ['id_pertemuan' => $qr->id_pertemuan])->row();
-                $cek_krs = $this->db->get_where('tb_krs', ['nim' => $mhs->nim, 'id_kelas' => $ptm->id_kelas])->num_rows();
+                $cek_krs = $this->db->get_where('tb_krs', ['nim' => $mhs->nim, 'id_kelas' => $ptm->id_kelas, 'is_approved' => 1])->num_rows();
 
                 if ($cek_krs > 0) {
                     // Cek apakah sudah absen
@@ -122,7 +144,7 @@ class Mhs_fitur extends CI_Controller {
                         $this->session->set_flashdata('error', 'Anda sudah melakukan absensi untuk pertemuan ini.');
                     }
                 } else {
-                    $this->session->set_flashdata('error', 'Anda tidak terdaftar di kelas ini (KRS tidak ditemukan)!');
+                    $this->session->set_flashdata('error', 'Akses Ditolak! Rencana studi (KRS) Anda untuk mata kuliah ini belum disetujui oleh Admin.');
                 }
                 } else {
                     $this->session->set_flashdata('error', 'Token QR sudah kedaluwarsa (Expired)!');
@@ -130,7 +152,7 @@ class Mhs_fitur extends CI_Controller {
             } else {
                 $this->session->set_flashdata('error', 'Token QR tidak valid atau salah ketik!');
             }
-            redirect('dashboard');
+            redirect('dashboard_mahasiswa');
         } else {
             $this->template->load('template', 'mahasiswa/form_scan');
         }

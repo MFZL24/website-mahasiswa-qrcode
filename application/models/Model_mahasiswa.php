@@ -4,9 +4,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Model_mahasiswa extends CI_Model {
 
     function tampilkan_data() {
-        $this->db->select('tb_mahasiswa.*, tb_operator.username, tb_operator.status, tb_operator.id_operator');
+        $this->db->select('tb_mahasiswa.*, tb_operator.username, tb_operator.status, tb_operator.id_operator, tb_operator.foto, tb_operator.role');
         $this->db->from('tb_mahasiswa');
         $this->db->join('tb_operator', 'tb_mahasiswa.id_operator = tb_operator.id_operator');
+        return $this->db->get();
+    }
+
+    function filter_data($keyword = '', $fakultas = '') {
+        $this->db->select('tb_mahasiswa.*, tb_operator.username, tb_operator.status, tb_operator.id_operator, tb_operator.foto, tb_operator.role');
+        $this->db->from('tb_mahasiswa');
+        $this->db->join('tb_operator', 'tb_mahasiswa.id_operator = tb_operator.id_operator');
+        
+        if ($keyword != '') {
+            $this->db->group_start();
+            $this->db->like('tb_mahasiswa.nama', $keyword);
+            $this->db->or_like('tb_mahasiswa.nim', $keyword);
+            $this->db->group_end();
+        }
+
+        if ($fakultas != '') {
+            $this->db->where('tb_mahasiswa.fakultas', $fakultas);
+        }
+
         return $this->db->get();
     }
 
@@ -35,7 +54,7 @@ class Model_mahasiswa extends CI_Model {
     }
 
     function get_one($nim) {
-        $this->db->select('tb_mahasiswa.*, tb_operator.username');
+        $this->db->select('tb_mahasiswa.*, tb_operator.username, tb_operator.foto, tb_operator.role');
         $this->db->from('tb_mahasiswa');
         $this->db->join('tb_operator', 'tb_mahasiswa.id_operator = tb_operator.id_operator');
         $this->db->where('tb_mahasiswa.nim', $nim);

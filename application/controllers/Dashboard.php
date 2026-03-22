@@ -39,6 +39,10 @@ class Dashboard extends CI_Controller {
         $data['pending_mhs'] = $this->db->where(['role' => 'mahasiswa', 'status' => 'pending'])->get('tb_operator')->result();
         $data['pending_dosen'] = $this->db->where(['role' => 'dosen', 'status' => 'pending'])->get('tb_operator')->result();
 
+        // Pengaturan Semester Aktif
+        $sem_row = $this->db->get_where('tb_pengaturan', ['nama_pengaturan' => 'semester_aktif'])->row();
+        $data['semester_aktif'] = ($sem_row) ? $sem_row->nilai_pengaturan : 'ganjil';
+
         $this->template->load('template', 'admin/dashboard', $data);
     }
 
@@ -49,7 +53,7 @@ class Dashboard extends CI_Controller {
         $dosen = $this->Model_dosen->get_by_operator($id_operator);
         
         if ($dosen) {
-            $this->db->select('tb_kelas.*, tb_mata_kuliah.nama_mk');
+            $this->db->select('tb_kelas.*, tb_mata_kuliah.nama_mk, tb_mata_kuliah.kode_mk, tb_mata_kuliah.semester as sem_mk');
             $this->db->from('tb_kelas');
             $this->db->join('tb_mata_kuliah', 'tb_kelas.id_mk = tb_mata_kuliah.id_mk');
             $this->db->where('tb_kelas.nidn', $dosen->nidn);
@@ -70,10 +74,25 @@ class Dashboard extends CI_Controller {
         if ($mhs) {
             $data['mhs'] = $mhs;
             $data['riwayat'] = $this->Model_absensi->get_riwayat_mahasiswa($mhs->nim);
+            
+            // Hitung KRS yang belum disetujui vs sudah disetujui
+            $data['approved_krs'] = $this->db->get_where('tb_krs', ['nim' => $mhs->nim, 'is_approved' => 1])->num_rows();
+            $data['pending_krs'] = $this->db->get_where('tb_krs', ['nim' => $mhs->nim, 'is_approved' => 0])->num_rows();
+
             $this->template->load('template', 'mahasiswa/dashboard', $data);
         } else {
              // Handle error case
-             echo "Data mahasiswa tidak ditemukan. Pastikan Admin sudah menautkan akun Anda.";
+             $this->session->set_flashdata('error', 'Data mahasiswa tidak ditemukan. Silakan hubungi admin.');
+             redirect('auth/logout');
         }
+    }
+
+    public function set_semester($type)
+    {
+        only_admin();
+        $this->db->where('nama_pengaturan', 'semester_aktif');
+        $this->db->update('tb_pengaturan', ['nilai_pengaturan' => $type]);
+        $this->session->set_flashdata('success', 'Semester aktif berhasil diubah menjadi '.strtoupper($type));
+        redirect('dashboard');
     }
 }

@@ -51,7 +51,8 @@ class Auth extends CI_Controller {
             'password' => $password,
             'role'     => $role,
             'nama'     => $nama,
-            'foto'     => 'default.png'
+            'foto'     => 'default.png',
+            'status'   => ($role === 'admin') ? 'active' : 'pending'
         );
         $this->db->insert('tb_operator', $data_user);
         $id_operator = $this->db->insert_id();
@@ -59,12 +60,17 @@ class Auth extends CI_Controller {
         // 2. Simpan ke tabel relasi
         if ($role === 'mahasiswa') {
             $data_mhs = array(
-                'nim'         => $identity,
-                'nama'        => $nama,
-                'id_operator' => $id_operator
+                'nim'            => $identity,
+                'nama'           => $nama,
+                'prodi'          => $this->input->post('prodi', true),
+                'fakultas'       => $this->input->post('fakultas', true),
+                'angkatan'       => $this->input->post('angkatan', true),
+                'ipk_terakhir'   => ($this->input->post('semester_aktif') > 1) ? $this->input->post('ipk_terakhir', true) : NULL,
+                'semester_aktif' => $this->input->post('semester_aktif', true),
+                'id_operator'    => $id_operator
             );
             $this->db->insert('tb_mahasiswa', $data_mhs);
-        } else {
+        } elseif ($role === 'dosen') {
             $data_dosen = array(
                 'nidn'        => $identity,
                 'nama_dosen'  => $nama,
@@ -175,6 +181,34 @@ class Auth extends CI_Controller {
         } else {
             redirect('auth/login');
         }
+    }
+
+    public function cek_status()
+    {
+        $identity = $this->input->post('identity', true);
+        
+        // Cari di mhs dulu
+        $mhs = $this->db->get_where('tb_mahasiswa', ['nim' => $identity])->row();
+        // Kalau ga ada cari di dosen
+        $dosen = $this->db->get_where('tb_dosen', ['nidn' => $identity])->row();
+
+        $id_op = null;
+        if ($mhs) $id_op = $mhs->id_operator;
+        if ($dosen) $id_op = $dosen->id_operator;
+
+        if ($id_op) {
+            $user = $this->db->get_where('tb_operator', ['id_operator' => $id_op])->row();
+            if ($user->status == 'active') {
+                $this->session->set_flashdata('success', 'Selamat! Akun Anda ('.$identity.') sudah AKTIF. Silakan login.');
+            } elseif ($user->status == 'pending') {
+                $this->session->set_flashdata('error', 'Akun ('.$identity.') masih PENDING. Harap bersabar menunggu persetujuan Admin.');
+            } else {
+                $this->session->set_flashdata('error', 'Akun Anda telah di-BLOKIR.');
+            }
+        } else {
+            $this->session->set_flashdata('error', 'Identitas ('.$identity.') tidak ditemukan. Pastikan NIM/NIDN sudah benar.');
+        }
+        redirect('auth/login');
     }
 
     public function logout()

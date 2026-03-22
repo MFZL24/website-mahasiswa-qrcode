@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Model_absensi extends CI_Model {
 
     function get_riwayat_mahasiswa($nim) {
-        $this->db->select('tb_absensi.*, tb_pertemuan.pertemuan_ke, tb_pertemuan.tanggal, tb_mata_kuliah.nama_mk');
+        $this->db->select('tb_absensi.*, tb_pertemuan.pertemuan_ke, tb_pertemuan.tanggal, tb_mata_kuliah.nama_mk, tb_mata_kuliah.kode_mk');
         $this->db->from('tb_absensi');
         $this->db->join('tb_pertemuan', 'tb_absensi.id_pertemuan = tb_pertemuan.id_pertemuan');
         $this->db->join('tb_kelas', 'tb_pertemuan.id_kelas = tb_kelas.id_kelas');

@@ -22,6 +22,7 @@ class Profile extends CI_Controller {
     public function update()
     {
         $id = $this->session->userdata('id_operator');
+        $role = $this->session->userdata('role');
         $data = array(
             'nama'    => $this->input->post('nama'),
             'email'   => $this->input->post('email'),
@@ -45,13 +46,30 @@ class Profile extends CI_Controller {
             }
         }
 
+        $this->db->trans_start();
+        
+        // Update tb_operator
         $this->db->where('id_operator', $id);
         $this->db->update('tb_operator', $data);
+
+        // Update related tables to keep data synchronized
+        if ($role === 'mahasiswa') {
+            $this->db->where('id_operator', $id);
+            $this->db->update('tb_mahasiswa', ['nama' => $data['nama']]);
+        } elseif ($role === 'dosen') {
+            $this->db->where('id_operator', $id);
+            $this->db->update('tb_dosen', [
+                'nama_dosen' => $data['nama'],
+                'email'      => $data['email']
+            ]);
+        }
+
+        $this->db->trans_complete();
 
         // Update session nama
         $this->session->set_userdata('nama', $data['nama']);
 
-        $this->session->set_flashdata('success', 'Profil berhasil diperbarui.');
+        $this->session->set_flashdata('success', 'Profil berhasil diperbarui dan disinkronkan.');
         redirect('profile');
     }
 

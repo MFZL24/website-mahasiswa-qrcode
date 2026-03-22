@@ -1,6 +1,7 @@
-<div class="form-container-card">
-    <div class="form-section-title">
-        <i class="fa-solid fa-school"></i> <?= isset($row) ? 'Edit Kelas Perkuliahan' : 'Buka Kelas Perkuliahan' ?>
+<div class="form-container-card" style="max-width: 1000px; margin: 0 auto; padding: 45px; border-radius: 40px; border: 1px solid #f1f5f9; box-shadow: 0 40px 80px rgba(0,0,0,0.06);">
+    <div class="form-section-title" style="margin-bottom: 40px;">
+        <i class="fa-solid fa-graduation-cap" style="background: var(--primary-light); color: var(--primary);"></i> 
+        <span><?= isset($row) ? 'Update Konfigurasi Kelas' : 'Pembukaan Kelas Perkuliahan Baru' ?></span>
     </div>
 
     <form action="<?= isset($row) ? base_url('index.php/kelas/edit') : base_url('index.php/kelas/tambah') ?>" method="post">
@@ -8,109 +9,124 @@
             <input type="hidden" name="id" value="<?= $row['id_kelas'] ?>">
         <?php endif; ?>
 
-        <div class="input-wrapper">
-            <label>Mata Kuliah</label>
-            <div class="input-field-container">
-                <select name="id_mk" class="form-control select-pure" required>
-                    <option value="">-- Pilih Mata Kuliah --</option>
-                    <?php foreach($mk->result() as $m): ?>
-                        <option value="<?= $m->id_mk ?>" <?= isset($row) && $row['id_mk'] == $m->id_mk ? 'selected' : '' ?>>[<?= $m->kode_mk ?>] <?= $m->nama_mk ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <i class="fa-solid fa-book"></i>
-            </div>
-        </div>
-
-        <div class="input-wrapper">
-            <label>Dosen Pengampu</label>
-            <div class="input-field-container">
-                <select name="nidn" class="form-control select-pure" required>
-                    <option value="">-- Pilih Dosen Pengampu --</option>
-                    <?php foreach($dosen->result() as $d): ?>
-                        <option value="<?= $d->nidn ?>" <?= isset($row) && $row['nidn'] == $d->nidn ? 'selected' : '' ?>><?= $d->nama_dosen ?> (<?= $d->nidn ?>)</option>
-                    <?php endforeach; ?>
-                </select>
-                <i class="fa-solid fa-user-tie"></i>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <!-- Primary Course & Lecturer Assignment -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px; margin-bottom: 35px;">
             <div class="input-wrapper">
-                <label>Nama Kelas</label>
-                <div class="input-field-container">
-                    <input type="text" name="nama_kelas" class="form-control" placeholder="Contoh: IF-A" required value="<?= isset($row) ? $row['nama_kelas'] : '' ?>">
-                    <i class="fa-solid fa-door-open"></i>
+                <label style="font-weight: 800; color: #475569; margin-bottom: 12px; display: block; font-size: 13px; text-transform: uppercase;">Mata Kuliah Kurikulum</label>
+                <div class="input-field-container" style="position: relative;">
+                    <select name="id_mk" class="form-control" required style="height: 60px; padding-left: 55px; border-radius: 18px; font-weight: 700; border: 2px solid #f1f5f9; background: #fafbfc; appearance: none; cursor: pointer; width: 100%;">
+                        <option value="">-- Pilih Mata Kuliah --</option>
+                        <?php foreach($mk->result() as $m): ?>
+                            <option value="<?= $m->id_mk ?>" <?= isset($row) && $row['id_mk'] == $m->id_mk ? 'selected' : '' ?>>[<?= $m->kode_mk ?>] <?= $m->nama_mk ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <i class="fa-solid fa-book" style="position: absolute; left: 20px; top: 20px; color: #cbd5e1; font-size: 18px;"></i>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label style="font-weight: 800; color: #475569; margin-bottom: 12px; display: block; font-size: 13px; text-transform: uppercase;">Dosen Pengampu Utama</label>
+                <div class="input-field-container" style="position: relative;">
+                    <select name="nidn" class="form-control" required style="height: 60px; padding-left: 55px; border-radius: 18px; font-weight: 700; border: 2px solid #f1f5f9; background: #fafbfc; appearance: none; cursor: pointer; width: 100%;">
+                        <option value="">-- Pilih Dosen Pengampu --</option>
+                        <?php foreach($dosen->result() as $d): ?>
+                            <option value="<?= $d->nidn ?>" <?= isset($row) && $row['nidn'] == $d->nidn ? 'selected' : '' ?>><?= $d->nama_dosen ?> (<?= $d->nidn ?>)</option>
+                        <?php endforeach; ?>
+                    </select>
+                    <i class="fa-solid fa-user-tie" style="position: absolute; left: 20px; top: 20px; color: #cbd5e1; font-size: 18px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 35px; margin-bottom: 45px;">
+            <div class="input-wrapper">
+                <label style="font-weight: 800; color: #475569; margin-bottom: 12px; display: block; font-size: 13px; text-transform: uppercase;">Identitas Nama Kelas</label>
+                <div class="input-field-container" style="position: relative;">
+                    <input type="text" name="nama_kelas" class="form-control" placeholder="Contoh: IF-21A-Pagi" required value="<?= isset($row) ? $row['nama_kelas'] : '' ?>" style="height: 60px; padding-left: 55px; border-radius: 18px; font-weight: 800; border: 2px solid #f1f5f9; background: #fafbfc;">
+                    <i class="fa-solid fa-door-open" style="position: absolute; left: 20px; top: 20px; color: #cbd5e1; font-size: 18px;"></i>
                 </div>
             </div>
             <div class="input-wrapper">
-                <label>Semester Akademik</label>
-                <div class="input-field-container">
-                    <select name="semester" class="form-control select-pure" required>
+                <label style="font-weight: 800; color: #475569; margin-bottom: 12px; display: block; font-size: 13px; text-transform: uppercase;">Semester Akademik</label>
+                <div class="input-field-container" style="position: relative;">
+                    <select name="semester" class="form-control" required style="height: 60px; padding-left: 55px; border-radius: 18px; font-weight: 700; border: 2px solid #f1f5f9; background: #fafbfc; appearance: none; cursor: pointer; width: 100%;">
                         <optgroup label="Semester Ganjil">
-                            <option value="Ganjil 1" <?= isset($row) && $row['semester'] == 'Ganjil 1' ? 'selected' : '' ?>>Ganjil - 1</option>
-                            <option value="Ganjil 3" <?= isset($row) && $row['semester'] == 'Ganjil 3' ? 'selected' : '' ?>>Ganjil - 3</option>
-                            <option value="Ganjil 5" <?= isset($row) && $row['semester'] == 'Ganjil 5' ? 'selected' : '' ?>>Ganjil - 5</option>
-                            <option value="Ganjil 7" <?= isset($row) && $row['semester'] == 'Ganjil 7' ? 'selected' : '' ?>>Ganjil - 7</option>
-                            <option value="Ganjil 9" <?= isset($row) && $row['semester'] == 'Ganjil 9' ? 'selected' : '' ?>>Ganjil - 9</option>
-                            <option value="Ganjil 11" <?= isset($row) && $row['semester'] == 'Ganjil 11' ? 'selected' : '' ?>>Ganjil - 11</option>
-                            <option value="Ganjil 13" <?= isset($row) && $row['semester'] == 'Ganjil 13' ? 'selected' : '' ?>>Ganjil - 13</option>
+                            <?php for($i=1; $i<=13; $i+=2): ?>
+                                <option value="Ganjil <?= $i ?>" <?= isset($row) && $row['semester'] == 'Ganjil '.$i ? 'selected' : '' ?>>Ganjil - <?= $i ?></option>
+                            <?php endfor; ?>
                         </optgroup>
                         <optgroup label="Semester Genap">
-                            <option value="Genap 2" <?= isset($row) && $row['semester'] == 'Genap 2' ? 'selected' : '' ?>>Genap - 2</option>
-                            <option value="Genap 4" <?= isset($row) && $row['semester'] == 'Genap 4' ? 'selected' : '' ?>>Genap - 4</option>
-                            <option value="Genap 6" <?= isset($row) && $row['semester'] == 'Genap 6' ? 'selected' : '' ?>>Genap - 6</option>
-                            <option value="Genap 8" <?= isset($row) && $row['semester'] == 'Genap 8' ? 'selected' : '' ?>>Genap - 8</option>
-                            <option value="Genap 10" <?= isset($row) && $row['semester'] == 'Genap 10' ? 'selected' : '' ?>>Genap - 10</option>
-                            <option value="Genap 12" <?= isset($row) && $row['semester'] == 'Genap 12' ? 'selected' : '' ?>>Genap - 12</option>
-                            <option value="Genap 14" <?= isset($row) && $row['semester'] == 'Genap 14' ? 'selected' : '' ?>>Genap - 14</option>
+                            <?php for($i=2; $i<=14; $i+=2): ?>
+                                <option value="Genap <?= $i ?>" <?= isset($row) && $row['semester'] == 'Genap '.$i ? 'selected' : '' ?>>Genap - <?= $i ?></option>
+                            <?php endfor; ?>
                         </optgroup>
                     </select>
-                    <i class="fa-solid fa-layer-group"></i>
+                    <i class="fa-solid fa-layer-group" style="position: absolute; left: 20px; top: 20px; color: #cbd5e1; font-size: 18px;"></i>
                 </div>
             </div>
         </div>
 
-        <div style="background: #f8fafc; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; margin-top: 10px;">
-            <div class="form-section-title" style="font-size: 16px; margin-bottom: 25px;">
-                <i class="fa-solid fa-calendar-day" style="width: 35px; height: 35px; font-size: 14px;"></i> Jadwal Mingguan Perkuliahan
+        <!-- Weekly Schedule Configuration -->
+        <div style="background: #fafbfc; padding: 45px; border-radius: 35px; border: 2px dashed #f1f5f9; margin-bottom: 45px;">
+            <div style="font-size: 15px; font-weight: 950; color: #475569; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; text-transform: uppercase; letter-spacing: 1.5px;">
+                <i class="fa-solid fa-calendar-clock" style="color: #3b82f6;"></i> Penjadwalan Mingguan
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px;">
                 <div class="input-wrapper" style="margin-bottom: 0;">
-                    <label>Hari</label>
-                    <div class="input-field-container">
-                        <select name="hari" class="form-control select-pure" required>
+                    <label style="font-weight: 800; color: #64748b; margin-bottom: 10px; display: block; font-size: 12px;">HARI KULIAH</label>
+                    <div class="input-field-container" style="position: relative;">
+                        <select name="hari" class="form-control" required style="height: 55px; padding-left: 50px; border-radius: 15px; font-weight: 700; border: 1px solid #e2e8f0; width: 100%;">
                             <?php $hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']; 
                             foreach($hari as $h): ?>
                                 <option value="<?= $h ?>" <?= isset($row) && $row['hari'] == $h ? 'selected' : '' ?>><?= $h ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <i class="fa-solid fa-calendar-check"></i>
+                        <i class="fa-solid fa-calendar-day" style="position: absolute; left: 18px; top: 18px; color: #cbd5e1;"></i>
                     </div>
                 </div>
                 <div class="input-wrapper" style="margin-bottom: 0;">
-                    <label>Jam Mulai</label>
-                    <div class="input-field-container">
-                        <input type="time" name="jam_mulai" class="form-control" required value="<?= isset($row) ? $row['jam_mulai'] : '08:00' ?>">
-                        <i class="fa-solid fa-clock"></i>
+                    <label style="font-weight: 800; color: #64748b; margin-bottom: 10px; display: block; font-size: 12px;">JAM MULAI (WIB)</label>
+                    <div class="input-field-container" style="position: relative;">
+                        <input type="time" name="jam_mulai" class="form-control" required value="<?= isset($row) ? $row['jam_mulai'] : '08:00' ?>" style="height: 55px; padding-left: 50px; border-radius: 15px; font-weight: 700; border: 1px solid #e2e8f0; width: 100%;">
+                        <i class="fa-solid fa-clock" style="position: absolute; left: 18px; top: 18px; color: #cbd5e1;"></i>
                     </div>
                 </div>
                 <div class="input-wrapper" style="margin-bottom: 0;">
-                    <label>Jam Selesai</label>
-                    <div class="input-field-container">
-                        <input type="time" name="jam_selesai" class="form-control" required value="<?= isset($row) ? $row['jam_selesai'] : '10:00' ?>">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    <label style="font-weight: 800; color: #64748b; margin-bottom: 10px; display: block; font-size: 12px;">JAM SELESAI (WIB)</label>
+                    <div class="input-field-container" style="position: relative;">
+                        <input type="time" name="jam_selesai" class="form-control" required value="<?= isset($row) ? $row['jam_selesai'] : '10:00' ?>" style="height: 55px; padding-left: 50px; border-radius: 15px; font-weight: 700; border: 1px solid #e2e8f0; width: 100%;">
+                        <i class="fa-solid fa-clock-rotate-left" style="position: absolute; left: 18px; top: 18px; color: #cbd5e1;"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="margin-top: 50px; display: flex; gap: 15px; justify-content: flex-end;">
-            <button type="reset" class="btn btn-danger" style="background: white; color: #ef4444; border: 2px solid #fecaca; width: 140px; justify-content: center; height: 55px; border-radius: 16px;">
+        <!-- Form Submission Controls -->
+        <div style="display: flex; gap: 20px; justify-content: flex-end; margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 40px;">
+            <button type="reset" class="btn-reset" style="padding: 18px 40px; border-radius: 20px; font-weight: 850; font-size: 15px; background: white; color: #94a3b8; border: 2px solid #f1f5f9; transition: all 0.3s; cursor: pointer;">
                 <i class="fa-solid fa-rotate-right"></i> Reset
             </button>
-            <button type="submit" name="submit" class="btn btn-primary" style="padding: 0 45px; height: 55px; border-radius: 16px; font-size: 16px; font-weight: 700; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);">
-                <?= isset($row) ? 'UPDATE KELAS' : 'BUKA KELAS SEKARANG' ?>
+            <button type="submit" name="submit" class="btn-primary" style="padding: 0 65px; height: 62px; border-radius: 22px; font-size: 16px; font-weight: 950; background: var(--primary); color: white; border: none; box-shadow: 0 15px 35px rgba(0, 104, 116, 0.25); cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); letter-spacing: 0.5px;">
+                <i class="fa-solid fa-paper-plane" style="margin-right: 12px; opacity: 0.6;"></i> <?= isset($row) ? 'UPDATE KONFIGURASI KELAS' : 'BUKA SESI KELAS BARU' ?>
             </button>
         </div>
     </form>
 </div>
+
+<style>
+    .btn-primary:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px rgba(0, 104, 116, 0.35);
+        filter: brightness(1.1);
+    }
+    .btn-reset:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+    input:focus, select:focus {
+        border-color: var(--primary) !important;
+        background: white !important;
+        box-shadow: 0 0 0 8px rgba(0, 104, 116, 0.05);
+    }
+</style>

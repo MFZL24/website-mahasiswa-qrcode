@@ -15,7 +15,12 @@ class Matakuliah extends CI_Controller {
 
     public function index()
     {
-        $data['record'] = $this->Model_matakuliah->tampilkan_data();
+        $prodi = $this->input->get('p');
+        if ($prodi) {
+            $data['record'] = $this->Model_matakuliah->filter_data($prodi);
+        } else {
+            $data['record'] = $this->Model_matakuliah->tampilkan_data();
+        }
         $this->template->load('template', 'matakuliah/lihat_data', $data);
     }
 
@@ -25,6 +30,7 @@ class Matakuliah extends CI_Controller {
             $data = array(
                 'kode_mk'  => $this->input->post('kode_mk'),
                 'nama_mk'  => $this->input->post('nama_mk'),
+                'prodi'    => $this->input->post('prodi'),
                 'sks'      => $this->input->post('sks'),
                 'semester' => $this->input->post('semester')
             );
@@ -42,6 +48,7 @@ class Matakuliah extends CI_Controller {
             $data = array(
                 'kode_mk'  => $this->input->post('kode_mk'),
                 'nama_mk'  => $this->input->post('nama_mk'),
+                'prodi'    => $this->input->post('prodi'),
                 'sks'      => $this->input->post('sks'),
                 'semester' => $this->input->post('semester')
             );

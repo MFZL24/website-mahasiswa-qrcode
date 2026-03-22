@@ -16,17 +16,10 @@ class Mahasiswa extends CI_Controller {
     public function index()
     {
         $keyword = $this->input->get('q', true);
+        $fakultas = $this->input->get('f', true);
 
-        if ($keyword) {
-            $this->db->select('tb_mahasiswa.*, tb_operator.username, tb_operator.status, tb_operator.id_operator');
-            $this->db->from('tb_mahasiswa');
-            $this->db->join('tb_operator', 'tb_mahasiswa.id_operator = tb_operator.id_operator');
-            $this->db->group_start();
-            $this->db->like('tb_mahasiswa.nama', $keyword);
-            $this->db->or_like('tb_mahasiswa.nim', $keyword);
-            $this->db->or_like('tb_operator.username', $keyword);
-            $this->db->group_end();
-            $data['record'] = $this->db->get();
+        if ($keyword || $fakultas) {
+            $data['record'] = $this->Model_mahasiswa->filter_data($keyword, $fakultas);
         } else {
             $data['record'] = $this->Model_mahasiswa->tampilkan_data();
         }
@@ -47,10 +40,13 @@ class Mahasiswa extends CI_Controller {
             );
 
             $data_mhs = array(
-                'nim'      => $this->input->post('nim'),
-                'nama'     => $this->input->post('nama'),
-                'prodi'    => $this->input->post('prodi'),
-                'angkatan' => $this->input->post('angkatan')
+                'nim'            => $this->input->post('nim'),
+                'nama'           => $this->input->post('nama'),
+                'prodi'          => $this->input->post('prodi'),
+                'fakultas'       => $this->input->post('fakultas'),
+                'angkatan'       => $this->input->post('angkatan'),
+                'ipk_terakhir'   => $this->input->post('ipk_terakhir'),
+                'semester_aktif' => $this->input->post('semester_aktif')
             );
 
             $this->Model_mahasiswa->simpan($data_mhs, $data_user);
@@ -74,10 +70,13 @@ class Mahasiswa extends CI_Controller {
             }
 
             $data_mhs = array(
-                'nim'      => $this->input->post('nim'),
-                'nama'     => $this->input->post('nama'),
-                'prodi'    => $this->input->post('prodi'),
-                'angkatan' => $this->input->post('angkatan')
+                'nim'            => $this->input->post('nim'),
+                'nama'           => $this->input->post('nama'),
+                'prodi'          => $this->input->post('prodi'),
+                'fakultas'       => $this->input->post('fakultas'),
+                'angkatan'       => $this->input->post('angkatan'),
+                'ipk_terakhir'   => $this->input->post('ipk_terakhir'),
+                'semester_aktif' => $this->input->post('semester_aktif')
             );
 
             $this->Model_mahasiswa->edit($data_mhs, $data_user, $nim_old);

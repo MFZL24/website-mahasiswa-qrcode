@@ -18,7 +18,7 @@ class Dosen extends CI_Controller {
         $keyword = $this->input->get('q', true);
         
         if ($keyword) {
-            $this->db->select('tb_dosen.*, tb_operator.username, tb_operator.status, tb_operator.id_operator');
+            $this->db->select('tb_dosen.*, tb_operator.username, tb_operator.status, tb_operator.id_operator, tb_operator.foto, tb_operator.role');
             $this->db->from('tb_dosen');
             $this->db->join('tb_operator', 'tb_dosen.id_operator = tb_operator.id_operator');
             $this->db->group_start();

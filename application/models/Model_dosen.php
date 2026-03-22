@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Model_dosen extends CI_Model {
 
     function tampilkan_data() {
-        $this->db->select('tb_dosen.*, tb_operator.username, tb_operator.status, tb_operator.id_operator');
+        $this->db->select('tb_dosen.*, tb_operator.username, tb_operator.status, tb_operator.id_operator, tb_operator.foto, tb_operator.role');
         $this->db->from('tb_dosen');
         $this->db->join('tb_operator', 'tb_dosen.id_operator = tb_operator.id_operator');
         return $this->db->get();
@@ -35,7 +35,7 @@ class Model_dosen extends CI_Model {
     }
 
     function get_one($nidn) {
-        $this->db->select('tb_dosen.*, tb_operator.username');
+        $this->db->select('tb_dosen.*, tb_operator.username, tb_operator.foto, tb_operator.role');
         $this->db->from('tb_dosen');
         $this->db->join('tb_operator', 'tb_dosen.id_operator = tb_operator.id_operator');
         $this->db->where('tb_dosen.nidn', $nidn);

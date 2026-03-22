@@ -4,6 +4,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Model_matakuliah extends CI_Model {
 
     function tampilkan_data() {
+        $this->db->order_by('semester', 'ASC');
+        $this->db->order_by('prodi', 'ASC');
+        $this->db->order_by('nama_mk', 'ASC');
+        return $this->db->get('tb_mata_kuliah');
+    }
+
+    function filter_data($prodi = '') {
+        if ($prodi != '') {
+            $this->db->where('prodi', $prodi);
+        }
+        $this->db->order_by('semester', 'ASC');
+        $this->db->order_by('nama_mk', 'ASC');
         return $this->db->get('tb_mata_kuliah');
     }
 
